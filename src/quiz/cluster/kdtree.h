@@ -58,10 +58,49 @@ struct KdTree
 		}
 
 	}
+
+	bool isInside( const std::vector<float> & c, float l,  const std::vector<float> & p ) {
+		//Check if p is within of the box of center c and l size
+		return ( p[0] > ( c[0] - l ) ) && ( p[0] < ( c[0] + l ) ) && ( p[1] > ( c[1] - l ) ) && ( p[1] < ( c[1] + l ) );
+
+	}
+
+	float distance( const std::vector< float > &p1, const std::vector< float > &p2 ) {
+		//Euclidian distance, just another helper function
+		return sqrt( pow( p1[0]-p2[0], 2 ) + pow( p1[1] - p2[1], 2 ) );
+	}
+
+	void explore( Node *node, std::vector<float> target,  float distanceTol, std::vector<int> &ids ) {
+		//Verify if node is valid. NULL -> we hit a "leaf", with nothing else to explore.
+		if( node == NULL )
+			return; 
+
+
+		//Verify if the node point is within distance
+		if( isInside( target, distanceTol, node->point ) ) {
+			if( distance( node->point, target ) <= distanceTol ) {
+				ids.push_back( node->id );	
+			}
+		}
+		
+		size_t coord = node->id % 2;
+
+		if( ( target[coord] - distanceTol ) < node->point[coord] ) {
+			explore( node->left, target, distanceTol, ids );	
+		}
+
+		if( ( target[coord] + distanceTol ) > node->point[coord] ) {
+			explore( node->right, target, distanceTol, ids );	
+		}
+
+	}
+
 	// return a list of point ids in the tree that are within distance of target
 	std::vector<int> search(std::vector<float> target, float distanceTol)
 	{
-		std::vector<int> ids;
+		std::vector<int> ids;		
+		explore( root, target, distanceTol, ids );
+
 		return ids;
 	}
 	
