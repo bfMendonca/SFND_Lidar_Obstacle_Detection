@@ -22,7 +22,7 @@ struct Node
 
 		Node** n;
 
-		if( point[ depth % 2 ] < p[ depth % 2 ] ) {
+		if( p[ depth % 2 ] < point[ depth % 2 ] ) {
 			n = &left;
 		}else {
 			n = &right;
@@ -61,20 +61,22 @@ struct KdTree
 
 	bool isInside( const std::vector<float> & c, float l,  const std::vector<float> & p ) {
 		//Check if p is within of the box of center c and l size
-		return ( p[0] > ( c[0] - l ) ) && ( p[0] < ( c[0] + l ) ) && ( p[1] > ( c[1] - l ) ) && ( p[1] < ( c[1] + l ) );
+		return ( 	  p[0] >= ( c[0] - l ) ) && 
+					( p[0] <= ( c[0] + l ) ) && 
+					( p[1] >= ( c[1] - l ) ) && 
+					( p[1] <= ( c[1] + l ) );
 
 	}
 
 	float distance( const std::vector< float > &p1, const std::vector< float > &p2 ) {
 		//Euclidian distance, just another helper function
-		return sqrt( pow( p1[0]-p2[0], 2 ) + pow( p1[1] - p2[1], 2 ) );
+		return sqrt( pow( p1[0] - p2[0], 2 ) + pow( p1[1] - p2[1], 2 ) );
 	}
 
 	void explore( Node *node, std::vector<float> target,  float distanceTol, std::vector<int> &ids ) {
 		//Verify if node is valid. NULL -> we hit a "leaf", with nothing else to explore.
 		if( node == NULL )
 			return; 
-
 
 		//Verify if the node point is within distance
 		if( isInside( target, distanceTol, node->point ) ) {
@@ -83,13 +85,13 @@ struct KdTree
 			}
 		}
 		
-		size_t coord = node->id % 2;
+		size_t coord = node->depth % 2;
 
-		if( ( target[coord] - distanceTol ) < node->point[coord] ) {
-			explore( node->left, target, distanceTol, ids );	
+		if( ( target[coord] ) < ( node->point[coord] + distanceTol ) ) {
+			explore( node->left, target, distanceTol, ids );
 		}
 
-		if( ( target[coord] + distanceTol ) > node->point[coord] ) {
+		if( ( target[coord] ) > ( node->point[coord] - distanceTol ) ) {
 			explore( node->right, target, distanceTol, ids );	
 		}
 
