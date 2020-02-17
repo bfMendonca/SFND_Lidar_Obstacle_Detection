@@ -22,14 +22,14 @@ struct Node
 
 		Node** n;
 
-		if( p[ depth % 2 ] < point[ depth % 2 ] ) {
+		if( p[ depth % point.size() ] < point[ depth % point.size() ] ) {
 			n = &left;
 		}else {
 			n = &right;
 		}
 
 		if( *n == NULL ) {
-			*n = new Node( p, setId, depth+1 );
+			*n = new Node( p, setId, depth + 1 );
 		}else {
 			(*n)->insert( p, setId );
 		}
@@ -61,16 +61,28 @@ struct KdTree
 
 	bool isInside( const std::vector<float> & c, float l,  const std::vector<float> & p ) {
 		//Check if p is within of the box of center c and l size
-		return ( 	  p[0] >= ( c[0] - l ) ) && 
-					( p[0] <= ( c[0] + l ) ) && 
-					( p[1] >= ( c[1] - l ) ) && 
-					( p[1] <= ( c[1] + l ) );
+
+		for ( int i = 0; i < p.size(); ++ i ) {
+			if( !( p[i] >= ( c[i] -l ) && p[i] <= ( c[i] + l ) ) ) {
+				//If any of this dimensional check are false, we are outsied box
+				return false;
+			}
+		}
+
+		return true;
+
 
 	}
 
 	float distance( const std::vector< float > &p1, const std::vector< float > &p2 ) {
 		//Euclidian distance, just another helper function
-		return sqrt( pow( p1[0] - p2[0], 2 ) + pow( p1[1] - p2[1], 2 ) );
+
+		float lenght = 0;
+		for( int i = 0; i < p1.size(); ++i ) {
+			lenght += pow( p1[i] - p2[i], 2 );
+		}
+
+		return sqrt( lenght );
 	}
 
 	void explore( Node *node, std::vector<float> target,  float distanceTol, std::vector<int> &ids ) {
@@ -85,7 +97,7 @@ struct KdTree
 			}
 		}
 		
-		size_t coord = node->depth % 2;
+		size_t coord = node->depth % ( node->point.size() );
 
 		if( ( target[coord] ) < ( node->point[coord] + distanceTol ) ) {
 			explore( node->left, target, distanceTol, ids );

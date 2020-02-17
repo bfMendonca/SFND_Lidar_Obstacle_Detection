@@ -137,17 +137,6 @@ std::unordered_set<int> Ransac(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, int ma
     }
 
    }
-
-   std::cout << "max inliers: " << bestInliers << " best A" << bestA << " best B " << bestB << " best C " << bestC << std::endl;
-
-	// For max iterations 
-
-	// Randomly sample subset and fit line
-
-	// Measure distance between every point and fitted line
-	// If distance is smaller than threshold count it as inlier
-
-	// Return indicies of inliers from fitted line with most inliers
 	
 	return inliersResult;
 

@@ -3,6 +3,8 @@
 #ifndef PROCESSPOINTCLOUDS_H_
 #define PROCESSPOINTCLOUDS_H_
 
+#include <unordered_set>
+
 #include <pcl/io/pcd_io.h>
 #include <pcl/common/common.h>
 #include <pcl/filters/extract_indices.h>
@@ -18,6 +20,10 @@
 #include <ctime>
 #include <chrono>
 #include "render/box.h"
+
+#include "quiz/cluster/kdtree.h"
+
+#define OWN_IMPLEMENTATION
 
 template<typename PointT>
 class ProcessPointClouds {
@@ -45,6 +51,17 @@ public:
     typename pcl::PointCloud<PointT>::Ptr loadPcd(std::string file);
 
     std::vector<boost::filesystem::path> streamPcd(std::string dataPath);
-  
+
+    //Making it inline
+    double distancetoPlane( double A, double B, double C, double D, const PointT &p ) const {
+        return fabs( A*p.x + B*p.y + C*p.z + D )/(sqrt( pow(A,2) + pow(B,2) +pow(C,2) ) );
+    }
+
+    std::unordered_set<int>RansacPlane(typename pcl::PointCloud<PointT>::Ptr cloud, int maxIterations, float distanceTol);
+
+    void proximity( int index, std::vector<int> & cluster, std::vector< bool > &processedPoints, typename pcl::PointCloud<PointT>::Ptr cloud, KdTree *tree, float distanceTol );
+
+    std::vector<std::vector<int>> euclideanCluster( typename pcl::PointCloud<PointT>::Ptr cloud, KdTree* tree, float distanceTol, int minSize, int maxSize );
+
 };
 #endif /* PROCESSPOINTCLOUDS_H_ */
