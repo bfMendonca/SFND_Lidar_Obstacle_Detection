@@ -109,37 +109,6 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
     // Time segmentation process
     auto startTime = std::chrono::steady_clock::now();
 
-#if not defined(OWN_IMPLEMENTATION)
-    //Solution based on the tutorial http://pointclouds.org/documentation/tutorials/extract_indices.php#extract-indices
-    //Actually the segmenting class    
-    pcl::SACSegmentation<PointT> seg;
-
-    //Coefficientes for the solution. It contains. roughtly, the parameters for the extraction that will be performed
-    pcl::ModelCoefficients::Ptr coefficients ( new pcl::ModelCoefficients () );
-    //Class to store the indices of the points that are, actually, inliers. Those are the points that are supposed to belong 
-    pcl::PointIndices::Ptr inliers( new pcl::PointIndices () );
-    
-    // Optional - Don't know what it means, look at the docs latter
-    seg.setOptimizeCoefficients (true);
-
-    //Setting the parameters for the segmentation
-    seg.setModelType (pcl::SACMODEL_PLANE);
-    seg.setMethodType (pcl::SAC_RANSAC);
-    seg.setMaxIterations ( maxIterations );
-    seg.setDistanceThreshold ( distanceThreshold );
-
-    //Setting the input cloud to the segmentation class
-    seg.setInputCloud( cloud );
-
-    //Performing the segmentation
-    seg.segment (*inliers, *coefficients);
-
-    if (inliers->indices.size () == 0)
-    {
-      std::cerr << "Could not estimate a planar model for the given dataset." << std::endl;
-    }
-
-#else
     pcl::PointIndices::Ptr inliers( new pcl::PointIndices() );
     
     if( cloud->size() > 0 ) {
@@ -156,8 +125,6 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
             inliers->indices.push_back( i );
         }
     }
-
-#endif
 
     auto endTime = std::chrono::steady_clock::now();
     auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
@@ -179,23 +146,6 @@ std::vector<typename pcl::PointCloud< PointT >::Ptr> ProcessPointClouds<PointT>:
 
     typename std::vector<typename pcl::PointCloud<PointT>::Ptr> clusters;
     std::vector<pcl::PointIndices> cluster_indices;
-
-#if not defined(OWN_IMPLEMENTATION)
-    // TODO:: Fill in the function to perform euclidean clustering to group detected obstacles
-    // Creating the KdTree object for the search method of the extraction
-    typename pcl::search::KdTree< PointT >::Ptr tree (new pcl::search::KdTree< PointT >);
-    tree->setInputCloud (cloud);
-
-    //Setting properties for the clustering
-    
-    pcl::EuclideanClusterExtraction< PointT > ec;
-    ec.setClusterTolerance ( clusterTolerance ); // 2cm
-    ec.setMinClusterSize ( minSize );
-    ec.setMaxClusterSize ( maxSize );
-    ec.setSearchMethod (tree);
-    ec.setInputCloud (cloud);
-    ec.extract (cluster_indices);
-#else
 
     KdTree* tree = new KdTree;
     
@@ -220,14 +170,7 @@ std::vector<typename pcl::PointCloud< PointT >::Ptr> ProcessPointClouds<PointT>:
         cluster_indices.push_back(newCluster);
     }
 
-    // }
-
-    // //let's clear the memoery. We didn't make these smart points, let's not leak ;)
-    // delete tree;
-  
-
-
-#endif
+    delete tree;
 
 
     for ( std::vector<pcl::PointIndices>::const_iterator it = cluster_indices.begin (); it != cluster_indices.end (); ++it )
