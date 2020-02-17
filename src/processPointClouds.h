@@ -23,6 +23,7 @@
 
 #include "quiz/cluster/kdtree.h"
 
+//If this is defined, then use my own implementation for the Kd Tree, Ransac and Euclidean clustering, otherwise, use PCL one's
 #define OWN_IMPLEMENTATION
 
 template<typename PointT>
