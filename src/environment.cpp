@@ -100,7 +100,7 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer)
   //Rendering the ground plane
   renderPointCloud( viewer, segResult.second, "ground", Color(0,1,0) );
 
-  std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> cloudClusters = pointProcessorI->Clustering( segResult.first, 0.4, 30, 500);
+  std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> cloudClusters = pointProcessorI->Clustering( segResult.first, 0.4, 25, 500);
 
   int clusterId = 0;
   std::vector<Color> colors = {Color(1,0,0), Color(0,1,0), Color(0,0,1)};
